@@ -116,6 +116,7 @@ if (!customElements.get('product-info')) {
       renderProductInfo({ requestUrl, targetId, callback }) {
         this.abortController?.abort();
         this.abortController = new AbortController();
+        console.log(requestUrl);
 
         fetch(requestUrl, { signal: this.abortController.signal })
           .then((response) => response.text())
@@ -139,6 +140,9 @@ if (!customElements.get('product-info')) {
 
       getSelectedVariant(productInfoNode) {
         const selectedVariant = productInfoNode.querySelector('variant-selects [data-selected-variant]')?.innerHTML;
+        const productData = productInfoNode.querySelector('variant-selects [tian-product-variants]')?.innerHTML;
+        console.log(JSON.parse(productData));
+
         return !!selectedVariant ? JSON.parse(selectedVariant) : null;
       }
 
@@ -174,6 +178,7 @@ if (!customElements.get('product-info')) {
             this.setUnavailable();
             return;
           }
+          console.log(variant);
 
           this.updateMedia(html, variant?.featured_media?.id);
 

@@ -287,7 +287,6 @@ function debounce(fn, wait) {
   };
 }
 
-
 function throttle(fn, delay) {
   let lastCall = 0;
   return function (...args) {
@@ -1069,6 +1068,7 @@ class VariantSelects extends HTMLElement {
     this.addEventListener('change', (event) => {
       const target = this.getInputForEventTarget(event.target);
       this.updateSelectionMetadata(event);
+      console.log(target, this.selectedOptionValues);
 
       publish(PUB_SUB_EVENTS.optionValueSelectionChange, {
         data: {
@@ -1117,6 +1117,8 @@ class VariantSelects extends HTMLElement {
   }
 
   get selectedOptionValues() {
+    console.log(Array.from(this.querySelectorAll('fieldset input:checked')));
+
     return Array.from(this.querySelectorAll('select option[selected], fieldset input:checked')).map(
       ({ dataset }) => dataset.optionValueId
     );
@@ -1282,51 +1284,39 @@ if (!customElements.get('bulk-add')) {
 }
 
 class CartPerformance {
-  static #metric_prefix = "cart-performance"
+  static #metric_prefix = 'cart-performance';
 
   static createStartingMarker(benchmarkName) {
-    const metricName = `${CartPerformance.#metric_prefix}:${benchmarkName}`
+    const metricName = `${CartPerformance.#metric_prefix}:${benchmarkName}`;
     return performance.mark(`${metricName}:start`);
   }
 
   static measureFromEvent(benchmarkName, event) {
-    const metricName = `${CartPerformance.#metric_prefix}:${benchmarkName}`
+    const metricName = `${CartPerformance.#metric_prefix}:${benchmarkName}`;
     const startMarker = performance.mark(`${metricName}:start`, {
-      startTime: event.timeStamp
+      startTime: event.timeStamp,
     });
 
     const endMarker = performance.mark(`${metricName}:end`);
 
-    performance.measure(
-      benchmarkName,
-      `${metricName}:start`,
-      `${metricName}:end`
-    );
+    performance.measure(benchmarkName, `${metricName}:start`, `${metricName}:end`);
   }
 
   static measureFromMarker(benchmarkName, startMarker) {
-    const metricName = `${CartPerformance.#metric_prefix}:${benchmarkName}`
+    const metricName = `${CartPerformance.#metric_prefix}:${benchmarkName}`;
     const endMarker = performance.mark(`${metricName}:end`);
 
-    performance.measure(
-      benchmarkName,
-      startMarker.name,
-      `${metricName}:end`
-    );
+    performance.measure(benchmarkName, startMarker.name, `${metricName}:end`);
   }
 
   static measure(benchmarkName, callback) {
-    const metricName = `${CartPerformance.#metric_prefix}:${benchmarkName}`
+    const metricName = `${CartPerformance.#metric_prefix}:${benchmarkName}`;
     const startMarker = performance.mark(`${metricName}:start`);
 
     callback();
 
     const endMarker = performance.mark(`${metricName}:end`);
 
-    performance.measure(
-      benchmarkName,
-      `${metricName}:start`,
-      `${metricName}:end`
-    );
+    performance.measure(benchmarkName, `${metricName}:start`, `${metricName}:end`);
   }
 }

@@ -1,0 +1,114 @@
+<div class="product-variant-selector" data-url="{{ product.url }}" data-section="{{ section.id }}">
+  <div class="product-image">
+    <img
+      src="
+        {% if product.selected_or_first_available_variant.image %}
+          {{ product.selected_or_first_available_variant.image | img_url: 'master' }}
+        {% else %}
+          {{ product.images.first | img_url: 'master' }}
+        {% endif %}
+      "
+      alt="{{ product.title }}"
+      class="product-main-image"
+      width="600"
+      height="600"
+    >
+  </div>
+  ayayay
+  <form action="/cart/add" method="post" enctype="multipart/form-data" class="product-form">
+    {% for option in product.options_with_values %}
+      <div class="selector-wrapper">
+        <label>option {{ option.name }}</label>
+        <select name="options{{ forloop.index }}" id="single-option-selector-{{ forloop.index }}">
+          {% for value in option.values %}
+            <option
+              value="{{ value | escape }}"
+              {% comment %} {% if product.selected_or_first_available_variant[option] == value %} {% endcomment %}
+              {% if value.selected %}
+                selected="selected"
+              {% endif %}
+              data-option-value-id="{{ value.id }}"
+            >
+              {{ value }} - {{ value.id }} - {{ value.selected }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+    {% endfor %}
+    <button type="submit" class="add-to-cart">Add to Cart</button>
+  </form>
+</div>
+
+<script src="{{ 'test-product.js' | asset_url }}" defer="defer"></script>
+<script type="application/json" tian-product-variants>
+  {{ product.options_with_values | json }}
+</script>
+
+<style>
+  .product-variant-selector {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .product-image {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .product-main-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+  }
+
+  .product-form {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .selector-wrapper {
+    margin-bottom: 15px;
+  }
+
+  label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #333;
+  }
+
+  select {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    background: white;
+    width: 100%;
+  }
+
+  .add-to-cart {
+    padding: 12px 24px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+
+  .add-to-cart:hover {
+    background: #0056b3;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .product-variant-selector {
+      padding: 15px;
+    }
+  }
+</style>

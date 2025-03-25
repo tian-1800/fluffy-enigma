@@ -77,16 +77,21 @@
       additional_props: input_dataset
     %}
   {%- elsif picker_type == 'button' -%}
-    <p>{{ value.selected -}}</p>
+    <p>
+      {{ value.selected }}
+      - {{ value.id }}
+    </p>
     <input
       type="radio"
       id="{{ input_id }}"
       name="{{ input_name | escape }}"
       value="{{ value | escape }}"
       form="{{ product_form_id }}"
-      {% if value.selected %}
-        checked
-      {% endif %}
+      {% comment %}
+        {% if value.selected %}
+          checked="{{ value.selected }}"
+        {% endif %}
+      {% endcomment %}
       {% if option_disabled %}
         class="disabled"
       {% endif %}
