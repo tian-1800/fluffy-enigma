@@ -1,0 +1,10 @@
+/**
+  This is to be rendered inside a liquid as  "sections"
+*/
+
+{
+  "type": "header",
+  "name": "Demo section group",
+  "sections": {},
+  "order": []
+}
