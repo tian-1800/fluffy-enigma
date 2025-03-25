@@ -1,0 +1,202 @@
+<p>Hello</p>
+
+<h2>Title</h2>
+<p>{{ section.settings.text_setting }}</p>
+
+<p>{{ section.settings.textarea_setting | newline_to_br }}</p>
+
+<h2>Richtext</h2>
+<p>{{ section.settings.richtext_setting }}</p>
+
+<h2>Inline Richtext</h2>
+<p>{{ section.settings.inline_richtext_setting }}</p>
+
+<h2>Number</h2>
+<p>{{ section.settings.number_setting }}</p>
+
+<h2>Range</h2>
+<p>{{ section.settings.range_setting }}px</p>
+
+<h2>Select</h2>
+<p>{{ section.settings.select_setting }}</p>
+
+<h2>Checkbox</h2>
+<p>{{ section.settings.checkbox_setting }}</p>
+
+<h2>Radio</h2>
+<p>{{ section.settings.radio_setting }}</p>
+
+<h2>Product</h2>
+<p>{{ section.settings.product_setting }} | {{ section.settings.product_setting.title }}</p>
+
+<h2>Product List</h2>
+{% for product in section.settings.product_list_setting %}
+  <p>{{ product }} | {{ product.title }} - {{ product.variants[0].price | money }}</p>
+{% endfor %}
+
+{% for block in section.blocks %}
+  {% if block.type == 'section_product' %}
+    {% assign title = block.settings.title | default: 'Product' %}
+  {% endif %}
+  <div {{ block.shopify_attributes }}>
+    <p>{{ title }}</p>
+  </div>
+{% endfor %}
+
+{% comment %} Grouping block based on type {% endcomment %}
+{% assign product_blocks = section.blocks | where: 'type', 'section_product' %}
+{% for block in product_blocks %}
+  <div {{ block.shopify_attributes }}>
+    <p>{{ block.settings.title | default: 'Product' }}</p>
+  </div>
+{% endfor %}
+
+{% schema %}
+{
+  "name": "Section Tutorial",
+  "tag": "section", //  html tag wrapper
+  "class": "section-tutorial",
+  "limit": 2, //        max section within a template
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "text",
+      "id": "text_setting",
+      "label": "Text Setting",
+      "default": "Default Value",
+      "info": "This is some info"
+    },
+    {
+      "type": "textarea",
+      "id": "textarea_setting",
+      "label": "Text Area Setting",
+      "placeholder": "textarea placeholder",
+      "info": "This is Text Area"
+    },
+    {
+      "type": "richtext",
+      "id": "richtext_setting",
+      "label": "Rich Text Setting",
+      "info": "This is Rich Text"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "inline_richtext_setting",
+      "label": "Inline Rich Text Setting",
+      "info": "This is Inline Rich Text"
+    },
+    {
+      "type": "number",
+      "id": "number_setting",
+      "label": "Number Setting",
+      "info": "This is number"
+    },
+    {
+      "type": "range",
+      "id": "range_setting",
+      "min": 10,
+      "max": 20,
+      "step": 1,
+      "label": "Range Setting",
+      "default": 15,
+      "unit": "px"
+    },
+    {
+      "type": "select",
+      "id": "select_setting",
+      "label": "Select Setting",
+      "options": [
+        {
+          "label": "Option 1",
+          "value": "option_1",
+          "group": "Group 1"
+        },
+        {
+          "label": "Option 2",
+          "value": "option_2",
+          "group": "Group 1"
+        },
+        {
+          "label": "Option 3",
+          "value": "option_3",
+          "group": "Group 2"
+        }
+      ],
+      "default": "option_1"
+    },
+    {
+      "type": "checkbox",
+      "id": "checkbox_setting",
+      "label": "Checkbox Setting",
+      "default": false
+    },
+    {
+      "type": "radio",
+      "id": "radio_setting",
+      "label": "Radio Setting",
+      "options": [
+        {
+          "label": "Option 1",
+          "value": "option_1"
+        },
+        {
+          "label": "Option 2",
+          "value": "option_2"
+        }
+      ]
+    },
+    {
+      "type": "product",
+      "id": "product_setting",
+      "label": "Product Setting"
+    },
+    {
+      "type": "product_list",
+      "id": "product_list_setting",
+      "label": "Product List Setting",
+      "limit": 5
+    },
+    {
+      "type": "collection",
+      "id": "collection_setting",
+      "label": "Collection Setting"
+    },
+    {
+      "type": "header",
+      "content": "Site Resources Setting",
+      "info": "This is Site Resources Setting. [Learn More](https://help.shopify.com/manual/online-store/themes/customizing-themes/section-cards/site-resources)"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "section_product",
+      "name": "Section Product",
+      "settings": [
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Product Setting"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title"
+        }
+      ],
+      "limit": 4
+    }
+  ],
+  "presets": [
+    {
+      "name": "Section Tutorial",
+      "blocks": [
+        {
+          "type": "section_product"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

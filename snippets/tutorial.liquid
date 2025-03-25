@@ -1,0 +1,22 @@
+{% comment %} {{ 'tutorial.css' | asset_url | stylesheet_tag }} {% endcomment %}
+
+{% capture product_title %}
+  <div><p>{{product.title}}</p></div>
+{% endcapture %}
+
+{% unless product.tags contains 'tutorials' %}{{ product_title }}{% endunless %}
+
+{% comment %}
+  forloop.index , forloop.parentloop
+  forloop can have limit and offset
+
+  use image_tag whenever possible
+
+  render can have props
+  render 'snippet', title: 'title', content: 'content'
+{% endcomment %}
+
+{% assign products = collection.products %}
+{% assign product_titles = products | map: 'title' %}
+
+{{ product_titles }}
