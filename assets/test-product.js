@@ -1,143 +1,79 @@
-document.addEventListener('DOMContentLoaded', function () {
+// assets/test-product.js
+
+document.addEventListener('DOMContentLoaded', () => {
   const variantSelects = document.querySelectorAll('select[name^="options"]');
   const productSelector = document.querySelector('.product-variant-selector');
-  const productData = document.querySelector('[tian-product-variants]')?.innerHTML;
-  console.log(JSON.parse(productData));
 
-  function buildRequestUrlWithParams(url, optionValues) {
+  // Helper function to build the request URL with params
+  const buildRequestUrlWithParams = (url, optionValues) => {
     const sectionId = productSelector.dataset.section;
-
     const params = [`section_id=${sectionId}`];
 
-    if (optionValues.length) {
+    if (optionValues.length > 0) {
       params.push(`option_values=${optionValues.join(',')}`);
     }
 
     return `${url}?${params.join('&')}`;
-  }
+  };
 
-  function renderProductInfo({ requestUrl, callback }) {
-    console.log(requestUrl);
-
+  // Fetch and render product information
+  const renderProductInfo = (requestUrl, render) => {
     fetch(requestUrl)
       .then((response) => response.text())
-      .then((responseText) => {
-        this.pendingRequestUrl = null;
-        const html = new DOMParser().parseFromString(responseText, 'text/html');
-        callback(html);
+      .then((htmlText) => {
+        const parser = new DOMParser();
+        const html = parser.parseFromString(htmlText, 'text/html');
+        render(html);
       })
+      .catch((error) => console.error('Error fetching product info:', error));
+  };
 
-      .catch((error) => {
-        console.error(error);
-      });
-  }
-
-  function updateMedia(html) {
-    console.log('start updating media');
-
+  // Update image and variant id
+  const updateMedia = (html) => {
     const mediaGallerySource = document.querySelector('.product-image');
     const mediaGalleryDestination = html.querySelector('.product-image');
 
     if (mediaGallerySource && mediaGalleryDestination) {
-      console.log('updating image');
-
       mediaGallerySource.innerHTML = mediaGalleryDestination.innerHTML;
+      mediaGallerySource.dataset.variantId = mediaGalleryDestination.dataset.variantId;
     }
-  }
+  };
 
-  function getSelectedVariant(productInfoNode) {
-    const selectedVariant = productInfoNode.querySelector('variant-selects [data-selected-variant]')?.innerHTML;
-    // const productData = productInfoNode.querySelector('variant-selects [tian-product-variants]')?.innerHTML;
-    // console.log(JSON.parse(productData));
+  // Update the browser's URL
+  const updateURL = (url) => {
+    const variantId = document.querySelector('.product-image')?.dataset.variantId;
+    const queryString = variantId ? `?variant=${variantId}` : '';
+    window.history.replaceState({}, '', `${url}${queryString}`);
+  };
 
-    return !!selectedVariant ? JSON.parse(selectedVariant) : null;
-  }
-  function handleUpdateProductInfo(productUrl) {
-    return (html) => {
-      // const variant = getSelectedVariant(html);
+  // Handle update product information on options change
+  const handleUpdateProductInfo = (productUrl) => (html) => {
+    updateMedia(html);
+    updateURL(productUrl);
+  };
 
-      // Need to check these implementation
-      // this.updateOptionValues(html);
-      // this.updateURL(productUrl, variant?.id);
-      // this.updateVariantInputs(variant?.id);
+  // Retrieve selected option values
+  const getSelectedOptionValues = () => {
+    const selectedOptions = document.querySelectorAll('select[name^="options"] option[selected]');
+    return Array.from(selectedOptions).map((option) => option.dataset.optionValueId);
+  };
 
-      // if (!variant) {
-      // this.setUnavailable();
-      //   return;
-      // }
+  // Function to handle changes in option values
+  const handleOptionValueChange = (productUrl) => (selectedOptionValues) => {
+    const requestUrl = buildRequestUrlWithParams(productUrl, selectedOptionValues);
+    renderProductInfo(requestUrl, handleUpdateProductInfo(productUrl));
+  };
 
-      // updateMedia(html);
-      updateMedia(html);
-
-      // this.productForm?.toggleSubmitButton(
-      //   html.getElementById(`ProductSubmitButton-${this.sectionId}`)?.hasAttribute('disabled') ?? true,
-      //   window.variantStrings.soldOut
-      // );
-
-      // publish(PUB_SUB_EVENTS.variantChange, {
-      //   data: {
-      //     sectionId: this.sectionId,
-      //     html,
-      //     variant,
-      //   },
-      // });
-    };
-  }
-  function selectedOptionValues() {
-    const optionsSelect = document.querySelectorAll('select[name^="options"] option[selected]');
-
-    console.log(Array.from(optionsSelect));
-
-    return Array.from(optionsSelect).map((select) => {
-      return select.dataset.optionValueId;
-    });
-
-    // return Array.from(productSelector.querySelectorAll('select option[selected], fieldset input:checked')).map(
-    //   ({ dataset }) => dataset.optionValueId
-    // );
-  }
-  function handleOptionValueChange(selectedOptionValues) {
-    // if (!this.contains(event.target)) return;
-
-    // this.resetProductFormState();
-    const productUrl = productSelector.dataset.url;
-    // this.pendingRequestUrl = productUrl;
-    // const shouldSwapProduct = this.dataset.url !== productUrl;
-    // const shouldFetchFullPage = this.dataset.updateUrl === 'true' && shouldSwapProduct;
-
-    renderProductInfo({
-      requestUrl: buildRequestUrlWithParams(productUrl, selectedOptionValues),
-      // targetId: target.id,
-      callback: handleUpdateProductInfo(productUrl),
-    });
-  }
-
-  // function updateImage() {
-  //   const selectedOptions = Array.from(variantSelects).map((select) => select.value);
-  //   const selectedVariant = productJson.variants.find((variant) => {
-  //     return variant.options.every((option, index) => option === selectedOptions[index]);
-  //   });
-
-  //   if (selectedVariant && selectedVariant.image) {
-  //     mainImage.src = selectedVariant.image.src;
-  //   } else {
-  //     mainImage.src = productJson.images[0].src;
-  //   }
-  // }
-
-  // Initialize on load
-  // updateImage();
-
-  // Add event listeners
+  // Attach event listeners to variant selects
   variantSelects.forEach((select) => {
     select.addEventListener('change', ({ target }) => {
-      console.log('select change', target);
-      Array.from(target.options)
-        .find((option) => option.getAttribute('selected'))
-        .removeAttribute('selected');
+      // Manually assign selected option based on user pick
+      Array.from(target.options).forEach((option) => option.removeAttribute('selected'));
       target.selectedOptions[0].setAttribute('selected', 'selected');
 
-      handleOptionValueChange(selectedOptionValues());
+      // Trigger product info update with the current selected values
+      const productUrl = productSelector.dataset.url;
+      handleOptionValueChange(productUrl)(getSelectedOptionValues());
     });
   });
 });

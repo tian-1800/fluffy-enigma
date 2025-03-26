@@ -1,45 +1,34 @@
 <div class="product-variant-selector" data-url="{{ product.url }}" data-section="{{ section.id }}">
-  <div class="product-image">
-    <img
-      src="
-        {% if product.selected_or_first_available_variant.image %}
-          {{ product.selected_or_first_available_variant.image | img_url: 'master' }}
-        {% else %}
-          {{ product.images.first | img_url: 'master' }}
-        {% endif %}
-      "
-      alt="{{ product.title }}"
-      class="product-main-image"
-      width="600"
-      height="600"
-    >
+  <div class="product-image" data-variant-id="{{ product.selected_or_first_available_variant.id }}">
+    {{
+      product.selected_or_first_available_variant.image
+      | image_url: width: 600
+      | image_tag: alt: product.selected_or_first_available_variant.title
+      | escape
+    }}
   </div>
-  ayayay
-  <form action="/cart/add" method="post" enctype="multipart/form-data" class="product-form">
-    {% for option in product.options_with_values %}
-      <div class="selector-wrapper">
-        <label>option {{ option.name }}</label>
-        <select name="options{{ forloop.index }}" id="single-option-selector-{{ forloop.index }}">
-          {% for value in option.values %}
-            <option
-              value="{{ value | escape }}"
-              {% comment %} {% if product.selected_or_first_available_variant[option] == value %} {% endcomment %}
-              {% if value.selected %}
-                selected="selected"
-              {% endif %}
-              data-option-value-id="{{ value.id }}"
-            >
-              {{ value }} - {{ value.id }} - {{ value.selected }}
-            </option>
-          {% endfor %}
-        </select>
-      </div>
-    {% endfor %}
-    <button type="submit" class="add-to-cart">Add to Cart</button>
-  </form>
+  {% for option in product.options_with_values %}
+    <div class="selector-wrapper">
+      <label>option {{ option.name }}</label>
+      <select name="options{{ forloop.index }}" id="single-option-selector-{{ forloop.index }}">
+        {% for value in option.values %}
+          <option
+            value="{{ value | escape }}"
+            {% if value.selected %}
+              selected="selected"
+            {% endif %}
+            data-option-value-id="{{ value.id }}"
+          >
+            {{ value }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+  {% endfor %}
 </div>
 
 <script src="{{ 'test-product.js' | asset_url }}" defer="defer"></script>
+
 <script type="application/json" tian-product-variants>
   {{ product.options_with_values | json }}
 </script>

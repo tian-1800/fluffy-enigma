@@ -178,7 +178,6 @@ if (!customElements.get('product-info')) {
             this.setUnavailable();
             return;
           }
-          console.log(variant);
 
           this.updateMedia(html, variant?.featured_media?.id);
 
